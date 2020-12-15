@@ -1,8 +1,11 @@
-﻿using Ookii.Dialogs.Wpf;
+﻿using Newtonsoft.Json;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using WeatherApp.Commands;
+using WeatherApp.Models;
 using WeatherApp.Services;
 
 namespace WeatherApp.ViewModels
@@ -86,10 +89,14 @@ namespace WeatherApp.ViewModels
         {
             ChangePageCommand = new DelegateCommand<string>(ChangePage);
 
-            /// TODO 06 : Instancier ExportCommand qui doit appeler la méthode Export
+            /// TODO 06 FAIT!!: Instancier ExportCommand qui doit appeler la méthode Export
+            
+            ExportCommand = new DelegateCommand<string>(Export);
+            
             /// Ne peut s'exécuter que la méthode CanExport retourne vrai
 
-            /// TODO 03 : Instancier ImportCommand qui doit appeler la méthode Import
+            /// TODO 03 FAIT!!! : Instancier ImportCommand qui doit appeler la méthode Import
+            ImportCommand = new DelegateCommand<string>(Import);
 
             /// TODO 13b : Instancier ChangeLanguageCommand qui doit appeler la méthode ChangeLanguage
 
@@ -147,13 +154,18 @@ namespace WeatherApp.ViewModels
         }
 
         /// <summary>
-        /// TODO 07 : Méthode CanExport ne retourne vrai que si la collection a du contenu
+        /// TODO 07 FAIT!!!: Méthode CanExport ne retourne vrai que si la collection a du contenu
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
         private bool CanExport(string obj)
         {
-            throw new NotImplementedException();
+            if(obj != null || obj.Length != 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -203,7 +215,7 @@ namespace WeatherApp.ViewModels
         private void openFromFile()
         {
 
-            /// TODO 05 : Code pour lire le contenu du fichier
+            /// TODO 05 FAIT!!!! : Code pour lire le contenu du fichier
             /// Voir
             /// Solution : 14_pratique_examen
             /// Projet : serialization_object
@@ -216,6 +228,24 @@ namespace WeatherApp.ViewModels
             /// Désérialiser dans un liste de TemperatureModel
             /// Remplacer le contenu de la collection de Temperatures avec la nouvelle liste
 
+            
+
+            using (StreamReader sr = File.OpenText(Filename))
+            {
+                var fileContent = sr.ReadToEnd();
+
+                List<TemperatureModel> p = JsonConvert.DeserializeObject<List<TemperatureModel>>(fileContent);
+
+                var tvm = CurrentViewModel as TemperatureViewModel;
+
+                tvm.Temperatures.Clear();
+
+                foreach (TemperatureModel temp in p)
+                {
+                    tvm.Temperatures.Add(temp);
+                }
+            }
+
         }
 
         private void Import(string obj)
@@ -227,7 +257,7 @@ namespace WeatherApp.ViewModels
                 openFileDialog.DefaultExt = "json";
             }
 
-            /// TODO 04 : Commande d'importation : Code pour afficher la boîte de dialogue
+            /// TODO 04 FAIT!!! : Commande d'importation : Code pour afficher la boîte de dialogue
             /// Voir
             /// Solution : 14_pratique_examen
             /// Projet : demo_openFolderDialog
@@ -237,6 +267,11 @@ namespace WeatherApp.ViewModels
             ///   Garder le nom du fichier dans Filename
             ///   Appeler la méthode openFromFile
 
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Filename = openFileDialog.FileName;
+                openFromFile();
+            }
         }
 
         private void ChangeLanguage (string language)
