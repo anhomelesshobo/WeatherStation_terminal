@@ -32,5 +32,6 @@
             </MenuItem>
         </Menu>
         <ContentControl Content="{Binding CurrentViewModel}"/>
+        
     </DockPanel>
 </Window>

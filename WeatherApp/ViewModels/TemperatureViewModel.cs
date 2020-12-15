@@ -28,6 +28,7 @@ namespace WeatherApp.ViewModels
             }
         }
 
+
         private ObservableCollection<TemperatureModel> temperatures;
 
         public ObservableCollection<TemperatureModel> Temperatures
@@ -96,7 +97,7 @@ namespace WeatherApp.ViewModels
 
             if (CurrentTemp != null)
             {
-                /// TODO 01 : Insérer la température à la position 0 de la collection
+                /// TODO 01 FAIT!! : Insérer la température à la position 0 de la collection
                 /// Description détaillée :
                 /// À chaque fois que l'on clique sur le bouton "Get Data". On veut 
                 /// insérer la température à la position 0 de la collection.
@@ -104,8 +105,14 @@ namespace WeatherApp.ViewModels
                 /// dernière température insérée dans la liste est différente
                 /// que celle que l'on vient de récupérer.
                 /// Utiliser la méthode Insert de la collection
+                TemperatureModel temp = new TemperatureModel();
+                temp.City = CurrentTemp.City;
+                temp.DateTime = CurrentTemp.DateTime;
+                temp.Temperature = CurrentTemp.Temperature;
 
-                Debug.WriteLine(CurrentTemp);
+                Temperatures.Insert(0,temp);
+
+                
             }
         }
 

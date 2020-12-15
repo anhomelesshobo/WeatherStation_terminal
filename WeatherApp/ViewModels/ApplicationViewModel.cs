@@ -55,13 +55,17 @@ namespace WeatherApp.ViewModels
         /// </summary>
         public DelegateCommand<string> ChangePageCommand { get; set; }
 
+        
         /// <summary>
-        /// TODO 02 : Ajouter ImportCommand
+        /// TODO 02 : Ajouter ImportCommand FAIT!!
         /// </summary>
 
+        public DelegateCommand<string> ImportCommand { get; set; }
         /// <summary>
-        /// TODO 02 : Ajouter ExportCommand
+        /// TODO 02 : Ajouter ExportCommand FAIIT!!
         /// </summary>
+
+        public DelegateCommand<string> ExportCommand { get; set; }
 
         /// <summary>
         /// TODO 13a : Ajouter ChangeLanguageCommand
