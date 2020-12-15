@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using WeatherApp.Commands;
 using WeatherApp.Models;
@@ -11,6 +12,7 @@ namespace WeatherApp.ViewModels
     public class TemperatureViewModel : BaseViewModel
     {
         private TemperatureModel currentTemp;
+        private TemperatureModel lastTemp;
         private string city;
 
         public ITemperatureService TemperatureService { get; private set; }
@@ -28,6 +30,15 @@ namespace WeatherApp.ViewModels
             }
         }
 
+        public TemperatureModel LastTemp
+        {
+            get => lastTemp;
+            set
+            {
+                lastTemp = value;
+                OnPropertyChanged();
+            }
+        }
 
         private ObservableCollection<TemperatureModel> temperatures;
 
@@ -74,7 +85,7 @@ namespace WeatherApp.ViewModels
         {
             Name = this.GetType().Name;
             Temperatures = new ObservableCollection<TemperatureModel>();
-
+            LastTemp = new TemperatureModel();
             GetTempCommand = new DelegateCommand<string>(GetTemp, CanGetTemp);
         }
 
@@ -105,12 +116,24 @@ namespace WeatherApp.ViewModels
                 /// dernière température insérée dans la liste est différente
                 /// que celle que l'on vient de récupérer.
                 /// Utiliser la méthode Insert de la collection
-                TemperatureModel temp = new TemperatureModel();
-                temp.City = CurrentTemp.City;
-                temp.DateTime = CurrentTemp.DateTime;
-                temp.Temperature = CurrentTemp.Temperature;
+                
 
-                Temperatures.Insert(0,temp);
+                if(lastTemp.City != CurrentTemp.City && lastTemp.DateTime != CurrentTemp.DateTime && lastTemp.Temperature != CurrentTemp.Temperature)
+                {
+                    TemperatureModel temp = new TemperatureModel();
+                    temp.City = CurrentTemp.City;
+                    temp.DateTime = CurrentTemp.DateTime;
+                    temp.Temperature = CurrentTemp.Temperature;
+
+                    lastTemp = temp;
+                    Temperatures.Insert(0, temp);
+                     
+                }
+                else                  
+                {
+                    MessageBox.Show(Properties.Resources.wn_warning);
+                }
+                
 
                 
             }

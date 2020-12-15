@@ -2,8 +2,10 @@
 using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using WeatherApp.Commands;
 using WeatherApp.Models;
 using WeatherApp.Services;
@@ -18,6 +20,7 @@ namespace WeatherApp.ViewModels
         private List<BaseViewModel> viewModels;
         private TemperatureViewModel tvm;
         private OpenWeatherService ows;
+        private bool exportEnabled;
         private string filename;
 
         private VistaSaveFileDialog saveFileDialog;
@@ -37,6 +40,8 @@ namespace WeatherApp.ViewModels
                 OnPropertyChanged();
             }
         }
+
+       
 
         /// <summary>
         /// String contenant le nom du fichier
@@ -71,8 +76,10 @@ namespace WeatherApp.ViewModels
         public DelegateCommand<string> ExportCommand { get; set; }
 
         /// <summary>
-        /// TODO 13a : Ajouter ChangeLanguageCommand
+        /// TODO 13a FAIT!!: Ajouter ChangeLanguageCommand
         /// </summary>
+        
+        public DelegateCommand<string> ChangeLanguageCommand { get; set; }
 
 
         public List<BaseViewModel> ViewModels
@@ -91,14 +98,16 @@ namespace WeatherApp.ViewModels
 
             /// TODO 06 FAIT!!: Instancier ExportCommand qui doit appeler la méthode Export
             
-            ExportCommand = new DelegateCommand<string>(Export);
+            ExportCommand = new DelegateCommand<string>(Export,CanExport);
             
             /// Ne peut s'exécuter que la méthode CanExport retourne vrai
 
             /// TODO 03 FAIT!!! : Instancier ImportCommand qui doit appeler la méthode Import
             ImportCommand = new DelegateCommand<string>(Import);
 
-            /// TODO 13b : Instancier ChangeLanguageCommand qui doit appeler la méthode ChangeLanguage
+            /// TODO 13b FAIT!!!: Instancier ChangeLanguageCommand qui doit appeler la méthode ChangeLanguage
+
+            ChangeLanguageCommand = new DelegateCommand<string>(ChangeLanguage);
 
             initViewModels();          
 
@@ -160,12 +169,14 @@ namespace WeatherApp.ViewModels
         /// <returns></returns>
         private bool CanExport(string obj)
         {
-            if(obj != null || obj.Length != 0)
-            {
-                return true;
-            }
-
-            return false;
+            //var tvm = CurrentViewModel as TemperatureViewModel;
+            //if (tvm.Temperatures.Count != 0)
+            //{
+            //    return true;
+            //}
+            return true;
+            //return false;
+            
         }
 
         /// <summary>
@@ -182,7 +193,7 @@ namespace WeatherApp.ViewModels
                 saveFileDialog.DefaultExt = "json";
             }
 
-            /// TODO 08 : Code pour afficher la boîte de dialogue de sauvegarde
+            /// TODO 08 FAIT!!!: Code pour afficher la boîte de dialogue de sauvegarde
             /// Voir
             /// Solution : 14_pratique_examen
             /// Projet : demo_openFolderDialog
@@ -193,11 +204,17 @@ namespace WeatherApp.ViewModels
             ///   Appeler la méthode saveToFile
             ///   
 
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                Filename = saveFileDialog.FileName;
+                saveToFile();
+            }
+
         }
 
         private void saveToFile()
         {
-            /// TODO 09 : Code pour sauvegarder dans le fichier
+            /// TODO 09 FAIT!!: Code pour sauvegarder dans le fichier
             /// Voir 
             /// Solution : 14_pratique_examen
             /// Projet : serialization_object
@@ -208,7 +225,19 @@ namespace WeatherApp.ViewModels
             /// Initilisation du StreamWriter
             /// Sérialiser la collection de températures
             /// Écrire dans le fichier
-            /// Fermer le fichier           
+            /// Fermer le fichier  
+            /// 
+            var tvm = CurrentViewModel as TemperatureViewModel;
+
+            var data = tvm.Temperatures;
+
+            var resultat = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            using (var tw = new StreamWriter(Filename))
+            {
+                tw.WriteLine(resultat);
+                tw.Close();
+            }
 
         }
 
@@ -276,11 +305,39 @@ namespace WeatherApp.ViewModels
 
         private void ChangeLanguage (string language)
         {
-            /// TODO 13c : Compléter la méthode pour permettre de changer la langue
+            /// TODO 13c FAIT!!!: Compléter la méthode pour permettre de changer la langue
             /// Ne pas oublier de demander à l'utilisateur de redémarrer l'application
+            /// 
+            MessageBoxResult result = MessageBox.Show(Properties.Resources.msg_restart, "My App", MessageBoxButton.YesNo);
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    changeLanguage(language);
+                    Restart();
+                    break;
+                case MessageBoxResult.No:
+                    changeLanguage(language);
+                    break;
+
+            }
             /// Aide : ApiConsumerDemo
         }
 
+        private void Restart()
+        {
+            var filename = Application.ResourceAssembly.Location;
+            var newFile = Path.ChangeExtension(filename, ".exe");
+            Process.Start(newFile);
+            Application.Current.Shutdown();
+        }
+
+        private void changeLanguage(string param)
+        {
+            Properties.Settings.Default.language = param;
+            Properties.Settings.Default.Save();
+        }
+
+        
         #endregion
     }
 }

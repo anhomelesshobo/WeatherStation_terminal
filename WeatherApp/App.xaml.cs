@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading;
+using System.Windows;
 
 namespace WeatherApp
 {
@@ -7,8 +8,13 @@ namespace WeatherApp
     /// </summary>
     public partial class App : Application
     {
-        /// TODO 11 : Ajouter les ressources linguistiques au projet
-        /// TODO 12 : Charger la langue d'affichage
+        /// TODO 11 FAIT!!!: Ajouter les ressources linguistiques au projet
+        public App()
+        {
+            var lang = WeatherApp.Properties.Settings.Default.language;
+            Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(lang);
+        }
+        /// TODO 12 FAIT!!!: Charger la langue d'affichage
 
         protected override void OnStartup(StartupEventArgs e)
         {
